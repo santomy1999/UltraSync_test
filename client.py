@@ -20,6 +20,9 @@ def place_object(x, y):
     canvas.delete("object")  # Clear any existing objects
     canvas.create_rectangle(x, y, x + 5, y + 5, fill="blue", tags="object")
 
+def trace_coordinates(x, y):
+    canvas.create_oval(x - 2, y - 2, x + 2, y + 2, fill="red")
+
 def update_coordinates(x_coordinate, y_coordinate):
     place_object(x_coordinate, y_coordinate)
 
@@ -47,6 +50,7 @@ async def receive_and_display_coordinates():
                 x_coordinate = int(x_coordinate / X_SCALE_FACTOR)
                 y_coordinate = int(y_coordinate / Y_SCALE_FACTOR)
                 update_coordinates(x_coordinate, y_coordinate)
+                trace_coordinates(x_coordinate,y_coordinate)
 
 def start_websocket_thread():
     loop = asyncio.new_event_loop()
