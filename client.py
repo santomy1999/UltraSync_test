@@ -53,6 +53,7 @@ async def receive_and_display_coordinates():
                 y_coordinate = int(y_coordinate / Y_SCALE_FACTOR)
                 if prev_x is not None and prev_y is not None:
                     update_coordinates(x_coordinate, y_coordinate, prev_x, prev_y)
+                    
                 prev_x, prev_y = x_coordinate, y_coordinate
 
 def start_websocket_thread():
