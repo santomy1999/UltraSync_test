@@ -20,15 +20,17 @@ def place_object(x, y):
     canvas.delete("object")  # Clear any existing objects
     canvas.create_rectangle(x, y, x + 5, y + 5, fill="blue", tags="object")
 
-def trace_coordinates(x, y):
-    canvas.create_oval(x - 2, y - 2, x + 2, y + 2, fill="red")
+def trace_coordinates(x, y, prev_x, prev_y):
+    canvas.create_line(prev_x, prev_y, x, y, fill="red", width=2)
 
-def update_coordinates(x_coordinate, y_coordinate):
+def update_coordinates(x_coordinate, y_coordinate, prev_x, prev_y):
     place_object(x_coordinate, y_coordinate)
+    trace_coordinates(x_coordinate, y_coordinate, prev_x, prev_y)
 
 async def receive_and_display_coordinates():
     uri = "ws://192.168.1.5:8765"  # Replace SERVER_IP with the server's IP address or domain name
     async with websockets.connect(uri) as websocket:
+        prev_x, prev_y = None, None  # Initialize previous coordinates
         while True:
             coordinates = await websocket.recv()
             parts = coordinates.split(',')
@@ -49,8 +51,9 @@ async def receive_and_display_coordinates():
                 # Scale the coordinates to match the screen size
                 x_coordinate = int(x_coordinate / X_SCALE_FACTOR)
                 y_coordinate = int(y_coordinate / Y_SCALE_FACTOR)
-                update_coordinates(x_coordinate, y_coordinate)
-                trace_coordinates(x_coordinate,y_coordinate)
+                if prev_x is not None and prev_y is not None:
+                    update_coordinates(x_coordinate, y_coordinate, prev_x, prev_y)
+                prev_x, prev_y = x_coordinate, y_coordinate
 
 def start_websocket_thread():
     loop = asyncio.new_event_loop()
