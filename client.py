@@ -5,7 +5,7 @@ import threading
 import pyautogui  # Used to get screen dimensions
 
 #server ip
-SERVER_URI = "ws://192.168.1.11:8765"
+SERVER_URI = "ws://192.168.86.162:8765"
 # Constants for the screen size
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
