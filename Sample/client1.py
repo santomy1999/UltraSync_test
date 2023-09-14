@@ -79,7 +79,7 @@ def display_object(data,object_name):
 
 def display_client_object():
     x, y = pyautogui.position()
-    update_coordinates(x+20,y+20,CLIENT_OBJECT_NAME)
+    update_coordinates(x,y,CLIENT_OBJECT_NAME)
     # time.sleep(100/1000)
 
 # Function to capture and return mouse pointer data
@@ -96,20 +96,22 @@ async def receive_coordinates():
         # Receive and display coordinates from the server
         while True:
             msg = await ws.recv()
-            display_object(msg,"blue")
+            cli,msg=msg.split(":")
+            if cli=="c2":
+                display_object(msg,"blue")
             display_client_object()
             # x, y = extract_coordinates(msg)
             # place_object1(x+10,y+10)
 
 # Start sending coordinates to the server
 async def send_coordinates():
-    url = "ws://192.168.1.9:7890"
+    url = "ws://192.168.1.13:7890"
     # Connect to the server
     async with websockets.connect(url) as ws:
         # Send coordinates to the server
         while True:
             x, y = capture_mouse_data()
-            message = f"x={x},y={y}"
+            message = f"c1:x={x+10},y={y}"
             await ws.send(message)
             # display_object(message,"blue")
             # display_client_object()

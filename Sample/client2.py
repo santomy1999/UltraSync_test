@@ -83,7 +83,7 @@ def display_object(data,object_name):
 
 def display_client_object():
         x, y = pyautogui.position()
-        update_coordinates(x+20,y+20,CLIENT_OBJECT_NAME)
+        update_coordinates(x,y,CLIENT_OBJECT_NAME)
         # time.sleep(100/1000)
         
 
@@ -98,7 +98,7 @@ async def send_mouse_data():
     async with websockets.connect(url) as ws:
         while True:
             x, y = capture_mouse_data()
-            message = f"x={x},y={y}"
+            message = f"c2:x={x+10},y={y+10}"
             await ws.send(message)
             await asyncio.sleep(0.1)  # Adjust the delay as needed
 
@@ -112,8 +112,9 @@ async def listen():
         # Send a greeting message
         while True:
             msg = await ws.recv()
-            # await asyncio.sleep(0.01)
-            display_object(msg,"blue")
+            cli,msg=msg.split(":")
+            if cli=="c1":
+                display_object(msg,"blue")
             display_client_object()
             
             # print(msg)
