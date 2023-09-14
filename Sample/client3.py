@@ -1,10 +1,12 @@
 # Importing the relevant libraries
 import websockets
 import asyncio
+# import tkinter
 import tkinter as tk
 import pyautogui
 import threading
 import time
+from PIL import Image, ImageTk  # Import Pillow
 
 # Constants for the screen size
 SCREEN_WIDTH = 1920
@@ -13,16 +15,14 @@ SCREEN_HEIGHT = 1080
 
 # Calculate the scaling factors for coordinates
 SCALE_FACTOR = 2/3
-# SCREEN_WIDTH / WINDOW_WIDTH
-# Y_SCALE_FACTOR = SCREEN_HEIGHT / WINDOW_HEIGHT
 
 # Calculate the window dimensions to match the specified aspect ratio and 1/3 the total area
 WINDOW_WIDTH = int((SCREEN_WIDTH *SCALE_FACTOR))
 WINDOW_HEIGHT = int((SCREEN_HEIGHT * SCALE_FACTOR))
 
-CLIENT_OBJECT_NAME = "client_object"
-URL = "ws://192.168.1.13:7890"
-# canvas = None
+CLIENT_OBJECT_NAME = "green"
+
+canvas = None
 # Function to initialize and run the tkinter GUI
 def run_tkinter():
     
@@ -36,13 +36,6 @@ def run_tkinter():
     canvas = tk.Canvas(window, width=WINDOW_WIDTH, height=WINDOW_HEIGHT)
     canvas.pack()
 
-    # # Initial coordinates
-    # x_coordinate = int(SCREEN_WIDTH / 2)  # Start in the center of the screen
-    # y_coordinate = int(SCREEN_HEIGHT / 2)
-
-    # Place the initial object
-    # place_object(x_coordinate, y_coordinate)
-
     # Start the tkinter main loop
     window.mainloop()
 
@@ -53,12 +46,7 @@ def place_object(x, y,object_name):
     canvas.delete(object_name)  # Clear any existing objects
     x=x*SCALE_FACTOR
     y=y*SCALE_FACTOR
-    canvas.create_rectangle(x, y, x + 5, y + 5, fill="blue", tags=object_name)
-    # x, y = pyautogui.position()
-    # x=(x*SCALE_FACTOR)+10
-    # y=(y*SCALE_FACTOR)+10
-    # canvas.delete(CLIENT_OBJECT_NAME)
-    # canvas.create_rectangle(x,y, x + 5, y + 5, fill="green", tags=CLIENT_OBJECT_NAME)
+    canvas.create_rectangle(x, y, x + 5, y + 5, fill=object_name, tags=object_name)
 
 # def trace_coordinates(x, y, prev_x, prev_y):
     # canvas.create_line(prev_x, prev_y, x, y, fill="red", width=2)
@@ -82,6 +70,7 @@ def extract_coordinates(data):
             x_coordinate = int(value)
         elif key == 'y':
             y_coordinate = int(value)
+        
 
     return x_coordinate, y_coordinate
 
@@ -92,64 +81,67 @@ def display_object(data,object_name):
 def display_client_object():
         x, y = pyautogui.position()
         update_coordinates(x+20,y+20,CLIENT_OBJECT_NAME)
-        return x+20,y+20
         # time.sleep(100/1000)
         
-def send_coordinates():
-    while True:
-        x, y = display_client_object()
-        message = f"x={x},y={y}"
-        asyncio.run(send_message(message))
 
-# Function to send a message using asyncio
-async def send_message(message):
-    async with websockets.connect(URL) as ws:
-        await ws.send(message)
+# Function to capture and return mouse pointer data
+def capture_mouse_data():
+    x, y = pyautogui.position()
+    return x, y
+
+# Function to send mouse pointer data to the server
+async def send_mouse_data():
+    url = "ws://192.168.1.9:7890"  # Replace with your server URL
+    async with websockets.connect(url) as ws:
+        while True:
+            x, y = capture_mouse_data()
+            message = f"x={x},y={y}"
+            await ws.send(message)
+            await asyncio.sleep(0.1)  # Adjust the delay as needed
 
 
 # The main function that will handle connection and communication 
 # with the server
 async def listen():
-    
+    url = "ws://192.168.1.13:7890"
     # Connect to the server
-    async with websockets.connect(URL) as ws:
+    async with websockets.connect(url) as ws:
         # Send a greeting message
         while True:
             msg = await ws.recv()
             # await asyncio.sleep(0.01)
-            display_object(msg,"master_object")
+            display_object(msg,"blue")
+            display_client_object()
             
             # print(msg)
+# Start sending coordinates in a separate thread
+def start_send_coordinates_thread():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(send_mouse_data())
 
 def start_websocket_thread():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(listen())
 
+# Start the tkinter GUI in a separate thread
+tkinter_thread = threading.Thread(target=run_tkinter)
+tkinter_thread.daemon = True
+tkinter_thread.start()
 
 # Start the connection in a separate thread
 websocket_thread = threading.Thread(target=start_websocket_thread)
 websocket_thread.daemon = True
 websocket_thread.start()
 
-# Start the send_coordinates function in a separate thread
-send_coordinates_thread = threading.Thread(target=send_coordinates)
-send_coordinates_thread.daemon = True
-send_coordinates_thread.start()
 
-# Start the tkinter GUI in a separate thread
-tkinter_thread = threading.Thread(target=run_tkinter)
-tkinter_thread.daemon = True
-tkinter_thread.start()
+# Start sending mouse data in a separate thread
+mouse_data_thread = threading.Thread(target=start_send_coordinates_thread)
+mouse_data_thread.daemon = True
+mouse_data_thread.start()
 
-# Start client object display in a seperate thread
-object_display_thread = threading.Thread(target=display_client_object)
-object_display_thread.daemon = True
-object_display_thread.start()
 
 # Wait for both threads to finish
 websocket_thread.join()
 tkinter_thread.join()
-object_display_thread.join()
-send_coordinates_thread.join()
-# asyncio.get_event_loop().run_until_complete(listen())
