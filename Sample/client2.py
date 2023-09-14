@@ -94,7 +94,7 @@ def capture_mouse_data():
 
 # Function to send mouse pointer data to the server
 async def send_mouse_data():
-    url = "ws://192.168.1.9:7890"  # Replace with your server URL
+    url = "ws://192.168.1.13:7890"  # Replace with your server URL
     async with websockets.connect(url) as ws:
         while True:
             x, y = capture_mouse_data()

@@ -103,7 +103,7 @@ async def receive_coordinates():
 
 # Start sending coordinates to the server
 async def send_coordinates():
-    url = "ws://192.168.1.13:7890"
+    url = "ws://192.168.1.9:7890"
     # Connect to the server
     async with websockets.connect(url) as ws:
         # Send coordinates to the server
