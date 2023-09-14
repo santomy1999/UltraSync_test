@@ -20,9 +20,9 @@ SCALE_FACTOR = 2/3
 WINDOW_WIDTH = int((SCREEN_WIDTH *SCALE_FACTOR))
 WINDOW_HEIGHT = int((SCREEN_HEIGHT * SCALE_FACTOR))
 
-CLIENT_OBJECT_NAME = "green"
-
-canvas = None
+CLIENT_OBJECT_NAME = "client_object"
+URL = "ws://192.168.1.13:7890"
+# canvas = None
 # Function to initialize and run the tkinter GUI
 def run_tkinter():
     
@@ -53,7 +53,7 @@ def place_object(x, y,object_name):
     canvas.delete(object_name)  # Clear any existing objects
     x=x*SCALE_FACTOR
     y=y*SCALE_FACTOR
-    canvas.create_rectangle(x, y, x + 5, y + 5, fill=object_name, tags=object_name)
+    canvas.create_rectangle(x, y, x + 5, y + 5, fill="blue", tags=object_name)
     # x, y = pyautogui.position()
     # x=(x*SCALE_FACTOR)+10
     # y=(y*SCALE_FACTOR)+10
@@ -82,7 +82,6 @@ def extract_coordinates(data):
             x_coordinate = int(value)
         elif key == 'y':
             y_coordinate = int(value)
-        
 
     return x_coordinate, y_coordinate
 
@@ -93,21 +92,32 @@ def display_object(data,object_name):
 def display_client_object():
         x, y = pyautogui.position()
         update_coordinates(x+20,y+20,CLIENT_OBJECT_NAME)
+        return x+20,y+20
         # time.sleep(100/1000)
         
+def send_coordinates():
+    while True:
+        x, y = display_client_object()
+        message = f"x={x},y={y}"
+        asyncio.run(send_message(message))
+
+# Function to send a message using asyncio
+async def send_message(message):
+    async with websockets.connect(URL) as ws:
+        await ws.send(message)
+
 
 # The main function that will handle connection and communication 
 # with the server
 async def listen():
-    url = "ws://192.168.1.13:7890"
+    
     # Connect to the server
-    async with websockets.connect(url) as ws:
+    async with websockets.connect(URL) as ws:
         # Send a greeting message
         while True:
             msg = await ws.recv()
             # await asyncio.sleep(0.01)
-            display_object(msg,"blue")
-            display_client_object()
+            display_object(msg,"master_object")
             
             # print(msg)
 
@@ -117,11 +127,15 @@ def start_websocket_thread():
     loop.run_until_complete(listen())
 
 
-
 # Start the connection in a separate thread
 websocket_thread = threading.Thread(target=start_websocket_thread)
 websocket_thread.daemon = True
 websocket_thread.start()
+
+# Start the send_coordinates function in a separate thread
+send_coordinates_thread = threading.Thread(target=send_coordinates)
+send_coordinates_thread.daemon = True
+send_coordinates_thread.start()
 
 # Start the tkinter GUI in a separate thread
 tkinter_thread = threading.Thread(target=run_tkinter)
@@ -137,4 +151,5 @@ object_display_thread.start()
 websocket_thread.join()
 tkinter_thread.join()
 object_display_thread.join()
+send_coordinates_thread.join()
 # asyncio.get_event_loop().run_until_complete(listen())

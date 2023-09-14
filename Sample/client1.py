@@ -86,7 +86,7 @@ def start_websocket_thread():
 # The main function that will handle connection and communication 
 # with the server
 async def send_coordinates():
-    url = "ws://192.168.6.109:7890"
+    url = "ws://192.168.1.13:7890"
     # Connect to the server
     async with websockets.connect(url) as ws:
         # Send coordinates to the server
