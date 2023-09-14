@@ -16,8 +16,10 @@ SCALE_FACTOR = 2/3
 WINDOW_WIDTH = int((SCREEN_WIDTH * SCALE_FACTOR))
 WINDOW_HEIGHT = int((SCREEN_HEIGHT * SCALE_FACTOR))
 
+URL = "ws://192.168.1.13:7890"
 
-CLIENT_OBJECT_NAME = "green"
+CLIENT1_OBJECT_NAME = "green"
+CLIENT2_OBJECT_NAME = "blue"
 
 
 canvas = None
@@ -79,7 +81,7 @@ def display_object(data,object_name):
 
 def display_client_object():
     x, y = pyautogui.position()
-    update_coordinates(x,y,CLIENT_OBJECT_NAME)
+    update_coordinates(x,y,CLIENT1_OBJECT_NAME)
     # time.sleep(100/1000)
 
 # Function to capture and return mouse pointer data
@@ -90,24 +92,24 @@ def capture_mouse_data():
 # The main function that will handle connection and communication 
 # with the server to receive data
 async def receive_coordinates():
-    url = "ws://192.168.1.13:7890"
+    # url = "ws://192.168.1.13:7890"
     # Connect to the server
-    async with websockets.connect(url) as ws:
+    async with websockets.connect(URL) as ws:
         # Receive and display coordinates from the server
         while True:
             msg = await ws.recv()
             cli,msg=msg.split(":")
             if cli=="c2":
-                display_object(msg,"blue")
+                display_object(msg,CLIENT2_OBJECT_NAME)
             display_client_object()
             # x, y = extract_coordinates(msg)
             # place_object1(x+10,y+10)
 
 # Start sending coordinates to the server
 async def send_coordinates():
-    url = "ws://192.168.1.13:7890"
+    # url = "ws://192.168.1.13:7890"
     # Connect to the server
-    async with websockets.connect(url) as ws:
+    async with websockets.connect(URL) as ws:
         # Send coordinates to the server
         while True:
             x, y = capture_mouse_data()

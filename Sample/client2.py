@@ -16,7 +16,10 @@ SCALE_FACTOR = 2/3
 WINDOW_WIDTH = int((SCREEN_WIDTH *SCALE_FACTOR))
 WINDOW_HEIGHT = int((SCREEN_HEIGHT * SCALE_FACTOR))
 
-CLIENT_OBJECT_NAME = "green"
+URL = "ws://192.168.1.13:7890"
+
+CLIENT1_OBJECT_NAME = "white"
+CLIENT2_OBJECT_NAME = "blue"
 
 canvas = None
 # Function to initialize and run the tkinter GUI
@@ -49,7 +52,7 @@ def place_object(x, y,object_name):
     canvas.delete(object_name)  # Clear any existing objects
     x=x*SCALE_FACTOR
     y=y*SCALE_FACTOR
-    canvas.create_rectangle(x, y, x + 5, y + 5, fill=object_name, tags=object_name)
+    canvas.create_rectangle(x, y, x + 15, y + 15, fill=object_name, tags=object_name)
    
 # def trace_coordinates(x, y, prev_x, prev_y):
     # canvas.create_line(prev_x, prev_y, x, y, fill="red", width=2)
@@ -83,7 +86,7 @@ def display_object(data,object_name):
 
 def display_client_object():
         x, y = pyautogui.position()
-        update_coordinates(x,y,CLIENT_OBJECT_NAME)
+        update_coordinates(x,y,CLIENT1_OBJECT_NAME)
         # time.sleep(100/1000)
         
 
@@ -94,8 +97,8 @@ def capture_mouse_data():
 
 # Function to send mouse pointer data to the server
 async def send_mouse_data():
-    url = "ws://192.168.1.13:7890"  # Replace with your server URL
-    async with websockets.connect(url) as ws:
+    # url = "ws://192.168.1.13:7890"  # Replace with your server URL
+    async with websockets.connect(URL) as ws:
         while True:
             x, y = capture_mouse_data()
             message = f"c2:x={x+10},y={y+10}"
@@ -106,15 +109,15 @@ async def send_mouse_data():
 # The main function that will handle connection and communication 
 # with the server
 async def listen():
-    url = "ws://192.168.1.13:7890"
+    # url = "ws://192.168.1.13:7890"
     # Connect to the server
-    async with websockets.connect(url) as ws:
+    async with websockets.connect(URL) as ws:
         # Send a greeting message
         while True:
             msg = await ws.recv()
             cli,msg=msg.split(":")
             if cli=="c1":
-                display_object(msg,"blue")
+                display_object(msg,CLIENT2_OBJECT_NAME)
             display_client_object()
             
             # print(msg)
