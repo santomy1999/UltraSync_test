@@ -23,10 +23,10 @@ canvas = None
 # my_label = None
 # his_label = None
 
-doctor={"name":   "Doctor's Probe" , "color":   "blue",    "label":   None,   "image":   "doctor.png",
-            "imageInstance":    None,   "canvasId": None}
-lab={"name":   "Lab's Probe" , "color":   "green",   "label":   None,   "image":   "lab.png",
-            "imageInstance":    None,   "canvasId": None}
+doctor  ={"name":   "Doctor's Probe"    , "color":   "#9da6fc",    "label":   None,
+          "image":   "doctor.png",   "imageInstance":    None,   "canvasId": None}
+lab     ={"name":   "Lab's Probe"       , "color":   "#8cedc1",   "label":   None,
+          "image":   "lab.png",      "imageInstance":    None,   "canvasId": None}
 
 
 
@@ -61,8 +61,8 @@ def run_tkinter():
     doctor["label"].place(x=30,y=40,width=180,height=40)
     lab["label"].place(x=220,y=40,width=180,height=40)
 
-    doctor["label"].configure(bg="cyan")
-    lab["label"].configure(bg="light green")
+    doctor["label"].configure(bg=doctor["color"])
+    lab["label"].configure(bg=lab["color"])
 
     image1 =  Image.open(doctor["image"])
     doctor["imageInstance"] = ImageTk.PhotoImage(image1)

@@ -18,16 +18,13 @@ SCALE_FACTOR = 2/3
 WINDOW_WIDTH = int((SCREEN_WIDTH *SCALE_FACTOR))
 WINDOW_HEIGHT = int((SCREEN_HEIGHT * SCALE_FACTOR))
 
-URL = "ws://192.168.1.9:7890"
-
-CLIENT1_OBJECT_NAME = "cyan"
-CLIENT2_OBJECT_NAME = "blue"
+URL = "ws://192.168.1.13:7890"
 
 canvas = None
 
-doctor={"name":   "Doctor's Probe" , "color":   "blue",    "label":   None,   "image":   "doctor.png",
+doctor  ={"name":   "Doctor's Probe" , "color":   "blue",    "label":   None,   "image":   "doctor.png",
             "imageInstance":    None,   "canvasId": None}
-lab={"name":   "Lab's Probe" , "color":   "green",   "label":   None,   "image":   "lab.png",
+lab     ={"name":   "Lab's Probe" , "color":   "green",   "label":   None,   "image":   "lab.png",
             "imageInstance":    None,   "canvasId": None}
 
 bg = "graph-background.jpg"
@@ -61,8 +58,8 @@ def run_tkinter():
     doctor["label"].place(x=30,y=40,width=180,height=40)
     lab["label"].place(x=220,y=40,width=180,height=40)
 
-    doctor["label"].configure(bg="cyan")
-    lab["label"].configure(bg="light green")
+    doctor["label"].configure(bg=doctor["color"])
+    lab["label"].configure(bg=lab["color"])
 
     image1 =  Image.open(doctor["image"])
     doctor["imageInstance"] = ImageTk.PhotoImage(image1)
