@@ -20,12 +20,12 @@ WINDOW_HEIGHT = int((SCREEN_HEIGHT * SCALE_FACTOR))
 URL = "ws://192.168.1.13:7890"
 
 canvas = None
-my_label = None
-his_label = None
+# my_label = None
+# his_label = None
 
-client1={"name":   "Client1" , "color":   "blue",    "label":   None,   "image":   "client1.png",
+doctor={"name":   "Doctor's Probe" , "color":   "blue",    "label":   None,   "image":   "doctor.png",
             "imageInstance":    None,   "canvasId": None}
-client2={"name":   "Client2" , "color":   "green",   "label":   None,   "image":   "client2.png",
+lab={"name":   "Lab's Probe" , "color":   "green",   "label":   None,   "image":   "lab.png",
             "imageInstance":    None,   "canvasId": None}
 
 
@@ -40,7 +40,7 @@ def run_tkinter():
     # global my_label
     # Create the Tkinter window with the specified dimensions
     window = tk.Tk()
-    window.title("Client One")
+    window.title("Doctor")
     window.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
 
     # Create a canvas to draw on
@@ -53,22 +53,22 @@ def run_tkinter():
     
     # creating label for both clients
 
-    client1["label"] = create_label(window, client1["name"])
-    client2["label"] = create_label(window, f"{client2['name']}: Not Connected")
+    doctor["label"] = create_label(window, doctor["name"])
+    lab["label"] = create_label(window, f"{lab['name']}: Not Connected")
 
 
 
-    client1["label"].place(x=30,y=40,width=150,height=40)
-    client2["label"].place(x=200,y=40,width=150,height=40)
+    doctor["label"].place(x=30,y=40,width=180,height=40)
+    lab["label"].place(x=220,y=40,width=180,height=40)
 
-    client1["label"].configure(bg="cyan")
-    client2["label"].configure(bg="light green")
+    doctor["label"].configure(bg="cyan")
+    lab["label"].configure(bg="light green")
 
-    image1 =  Image.open(client1["image"])
-    client1["imageInstance"] = ImageTk.PhotoImage(image1)
+    image1 =  Image.open(doctor["image"])
+    doctor["imageInstance"] = ImageTk.PhotoImage(image1)
 
-    image2 =  Image.open(client2["image"])
-    client2["imageInstance"] = ImageTk.PhotoImage(image2)
+    image2 =  Image.open(lab["image"])
+    lab["imageInstance"] = ImageTk.PhotoImage(image2)
     
     # Start the tkinter main loop
     window.mainloop()
@@ -83,8 +83,8 @@ def create_label(parent, text):
     label["justify"] = "center"
     label["text"] = text
  
-    # canvas.create_rectangle(10,40, 20, 50, fill=client1["color"], tags="label c1")
-    # canvas.create_rectangle(20,40, 30, 50, fill=client2["color"], tags="label c2")
+    # canvas.create_rectangle(10,40, 20, 50, fill=doctor["color"], tags="label c1")
+    # canvas.create_rectangle(20,40, 30, 50, fill=lab["color"], tags="label c2")
     return label
 
 def place_object(x, y,object):
@@ -122,9 +122,9 @@ def display_object(data,object_name):
     update_coordinates(x, y,object_name)
 
 def display_client_object():
-    global client1
+    global doctor
     x, y = pyautogui.position()
-    update_coordinates(x,y,client1)
+    update_coordinates(x,y,doctor)
     # time.sleep(100/1000)
 
 # Function to capture and return mouse pointer data
@@ -137,15 +137,15 @@ def capture_mouse_data():
 async def receive_coordinates():
     # url = "ws://192.168.1.13:7890"
     # Connect to the server
-    global client2
-    global client1
+    global lab
+    global doctor
     async with websockets.connect(URL) as ws:
         # Receive and display coordinates from the server
         while True:
             msg = await ws.recv()
             cli,msg=msg.split(":")
             if cli=="c2":
-                display_object(msg,client2)
+                display_object(msg,lab)
             display_client_object()
             # x, y = extract_coordinates(msg)
             # place_object1(x+10,y+10)
@@ -158,7 +158,7 @@ async def send_coordinates():
         # Send coordinates to the server
         while True:
             x, y = capture_mouse_data()
-            message = f"c1:x={x+10},y={y}"
+            message = f"c1:x={x+50},y={y+50}"
             await ws.send(message)
             # display_object(message,"blue")
             # display_client_object()
