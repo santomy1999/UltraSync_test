@@ -18,7 +18,7 @@ WINDOW_HEIGHT = int((SCREEN_HEIGHT * SCALE_FACTOR))
 
 URL = "ws://192.168.1.13:7890"
 
-CLIENT1_OBJECT_NAME = "white"
+CLIENT1_OBJECT_NAME = "cyan"
 CLIENT2_OBJECT_NAME = "blue"
 
 canvas = None
@@ -29,6 +29,9 @@ def run_tkinter():
     # Create the Tkinter window with the specified dimensions
     window = tk.Tk()
     window.title("Client 2")
+
+
+
     window.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
 
     # Create a canvas to draw on
@@ -147,11 +150,6 @@ websocket_thread.start()
 mouse_data_thread = threading.Thread(target=start_send_coordinates_thread)
 mouse_data_thread.daemon = True
 mouse_data_thread.start()
-
-# # Start client object display in a seperate thread
-# object_display_thread = threading.Thread(target=display_client_object)
-# object_display_thread.daemon = True
-# object_display_thread.start()
 
 # Wait for both threads to finish
 websocket_thread.join()

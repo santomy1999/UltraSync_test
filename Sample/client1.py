@@ -4,7 +4,8 @@ import asyncio
 import pyautogui
 import tkinter as tk
 import threading
-
+from PIL import ImageTk, Image
+import tkinter.font as tkFont
 # Constants for the screen size
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
@@ -18,15 +19,25 @@ WINDOW_HEIGHT = int((SCREEN_HEIGHT * SCALE_FACTOR))
 
 URL = "ws://192.168.1.13:7890"
 
-CLIENT1_OBJECT_NAME = "green"
-CLIENT2_OBJECT_NAME = "blue"
-
-
 canvas = None
+my_label = None
+his_label = None
+
+client1={"name":   "Client1" , "color":   "blue",    "label":   None,   "image":   "client1.png",
+            "imageInstance":    None,   "canvasId": None}
+client2={"name":   "Client2" , "color":   "green",   "label":   None,   "image":   "client2.png",
+            "imageInstance":    None,   "canvasId": None}
+
+
+
+bg = "graph-background.jpg"
+# background_image = Image.open("graph_background.jpg")
+# background_photo = ImageTk.PhotoImage(background_image)
+
 # Function to initialize and run the tkinter GUI
 def run_tkinter():
     global canvas
-
+    # global my_label
     # Create the Tkinter window with the specified dimensions
     window = tk.Tk()
     window.title("Client One")
@@ -36,26 +47,57 @@ def run_tkinter():
     canvas = tk.Canvas(window, width=WINDOW_WIDTH, height=WINDOW_HEIGHT)
     canvas.pack()
 
-    # Initial coordinates
-    x_coordinate = int(SCREEN_WIDTH / 2)  # Start in the center of the screen
-    y_coordinate = int(SCREEN_HEIGHT / 2)
+    # background image
+    bgimage = ImageTk.PhotoImage(file = bg)
+    canvas.create_image(10, 10, image = bgimage, anchor = tk.NW)
+    
+    # creating label for both clients
 
-    # Place the initial object
-    # place_object(x_coordinate, y_coordinate)
+    client1["label"] = create_label(window, client1["name"])
+    client2["label"] = create_label(window, f"{client2['name']}: Not Connected")
 
+
+
+    client1["label"].place(x=30,y=40,width=150,height=40)
+    client2["label"].place(x=200,y=40,width=150,height=40)
+
+    client1["label"].configure(bg="cyan")
+    client2["label"].configure(bg="light green")
+
+    image1 =  Image.open(client1["image"])
+    client1["imageInstance"] = ImageTk.PhotoImage(image1)
+
+    image2 =  Image.open(client2["image"])
+    client2["imageInstance"] = ImageTk.PhotoImage(image2)
+    
     # Start the tkinter main loop
     window.mainloop()
 
-def place_object(x, y,object_name):
-    canvas.delete(object_name)  # Clear any existing objects
+
+# Function to create and configure a label widget
+def create_label(parent, text):
+    label = tk.Label(parent)
+    ft = tkFont.Font(family='Times', size=10)
+    label["font"] = ft
+    label["fg"] = "#333333"
+    label["justify"] = "center"
+    label["text"] = text
+ 
+    # canvas.create_rectangle(10,40, 20, 50, fill=client1["color"], tags="label c1")
+    # canvas.create_rectangle(20,40, 30, 50, fill=client2["color"], tags="label c2")
+    return label
+
+def place_object(x, y,object):
+    canvas.delete(object["canvasId"])  # Clear any existing objects
     x = x * SCALE_FACTOR
     y = y * SCALE_FACTOR
-    canvas.create_rectangle(x, y, x + 5, y + 5, fill=object_name, tags=object_name)
-
+    # canvas.create_rectangle(x, y, x + 10, y + 10, fill=object["color"], tags=object["name"])
+    object["canvasId"] = canvas.create_image(x, y, anchor=tk.NW, image=object["imageInstance"])
 # Function to update object coordinates on the canvas
-def update_coordinates(x_coordinate, y_coordinate,object_name):
-    place_object(x_coordinate, y_coordinate,object_name)
-
+def update_coordinates(x_coordinate, y_coordinate,object):
+    place_object(x_coordinate, y_coordinate,object)
+    object["label"].config(text=f"{object['name']}:X: {x_coordinate}, Y: {y_coordinate}")   
+    # Update the my_label text with the new coordinates
 # Extract x, y coordinates from the websocket data
 def extract_coordinates(data):
     parts = data.split(',')
@@ -80,8 +122,9 @@ def display_object(data,object_name):
     update_coordinates(x, y,object_name)
 
 def display_client_object():
+    global client1
     x, y = pyautogui.position()
-    update_coordinates(x,y,CLIENT1_OBJECT_NAME)
+    update_coordinates(x,y,client1)
     # time.sleep(100/1000)
 
 # Function to capture and return mouse pointer data
@@ -94,13 +137,15 @@ def capture_mouse_data():
 async def receive_coordinates():
     # url = "ws://192.168.1.13:7890"
     # Connect to the server
+    global client2
+    global client1
     async with websockets.connect(URL) as ws:
         # Receive and display coordinates from the server
         while True:
             msg = await ws.recv()
             cli,msg=msg.split(":")
             if cli=="c2":
-                display_object(msg,CLIENT2_OBJECT_NAME)
+                display_object(msg,client2)
             display_client_object()
             # x, y = extract_coordinates(msg)
             # place_object1(x+10,y+10)
