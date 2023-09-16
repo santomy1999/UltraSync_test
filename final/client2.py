@@ -18,14 +18,14 @@ SCALE_FACTOR = 2/3
 WINDOW_WIDTH = int((SCREEN_WIDTH *SCALE_FACTOR))
 WINDOW_HEIGHT = int((SCREEN_HEIGHT * SCALE_FACTOR))
 
-URL = "ws://192.168.1.13:7890"
+URL = "ws://192.168.125.162:7890"
 
 canvas = None
 
-doctor  ={"name":   "Doctor's Probe" , "color":   "blue",    "label":   None,   "image":   "doctor.png",
-            "imageInstance":    None,   "canvasId": None}
-lab     ={"name":   "Lab's Probe" , "color":   "green",   "label":   None,   "image":   "lab.png",
-            "imageInstance":    None,   "canvasId": None}
+doctor  ={"name":   "Doctor's Probe"    , "color":   "#9da6fc",    "label":   None,
+          "image":   "doctor.png",   "imageInstance":    None,   "canvasId": None}
+lab     ={"name":   "Lab's Probe"       , "color":   "#8cedc1",   "label":   None,
+          "image":   "lab.png",      "imageInstance":    None,   "canvasId": None}
 
 bg = "graph-background.jpg"
 # Function to initialize and run the tkinter GUI
@@ -143,7 +143,7 @@ async def send_mouse_data():
     async with websockets.connect(URL) as ws:
         while True:
             x, y = capture_mouse_data()
-            message = f"c2:x={x+50},y={y+50}"
+            message = f"c2:x={x},y={y}"
             await ws.send(message)
             await asyncio.sleep(0.1)  # Adjust the delay as needed
 

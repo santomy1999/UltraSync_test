@@ -17,7 +17,7 @@ SCALE_FACTOR = 2/3
 WINDOW_WIDTH = int((SCREEN_WIDTH * SCALE_FACTOR))
 WINDOW_HEIGHT = int((SCREEN_HEIGHT * SCALE_FACTOR))
 
-URL = "ws://192.168.1.13:7890"
+URL = "ws://192.168.125.162:7890"
 
 canvas = None
 # my_label = None
@@ -158,7 +158,7 @@ async def send_coordinates():
         # Send coordinates to the server
         while True:
             x, y = capture_mouse_data()
-            message = f"c1:x={x+50},y={y+50}"
+            message = f"c1:x={x},y={y}"
             await ws.send(message)
             # display_object(message,"blue")
             # display_client_object()
